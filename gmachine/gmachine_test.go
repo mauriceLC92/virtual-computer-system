@@ -53,3 +53,94 @@ func TestNOOP(t *testing.T) {
 		t.Errorf("wanted counter value %d but got %d instead", wantP, gotP)
 	}
 }
+
+func TestINCA(t *testing.T) {
+	t.Parallel()
+
+	g := gmachine.New()
+	g.Memory[0] = uint64(gmachine.INCA)
+
+	g.Run()
+
+	wantA := 1
+	gotA := g.A
+
+	if wantA != int(gotA) {
+		t.Errorf("wanted %d but got %d", wantA, gotA)
+	}
+}
+
+func TestDECA(t *testing.T) {
+	t.Parallel()
+
+	g := gmachine.New()
+	g.A = 2
+	g.Memory[0] = uint64(gmachine.DECA)
+
+	g.Run()
+
+	wantA := 1
+	gotA := g.A
+
+	if wantA != int(gotA) {
+		t.Errorf("wanted %d but got %d", wantA, gotA)
+	}
+}
+
+// TestSubtraction tests for the machine to be able to subtract 2 from 3
+func TestSubtraction(t *testing.T) {
+	t.Parallel()
+
+	g := gmachine.New()
+	g.A = 3
+	g.Memory[0] = uint64(gmachine.DECA)
+	g.Memory[1] = uint64(gmachine.DECA)
+
+	g.Run()
+
+	wantA := 1
+	gotA := g.A
+
+	if wantA != int(gotA) {
+		t.Errorf("wanted %d but got %d", wantA, gotA)
+	}
+}
+
+func TestSETA(t *testing.T) {
+	t.Parallel()
+	g := gmachine.New()
+	g.RunProgram([]uint64{
+		uint64(gmachine.SETA), 5,
+		uint64(gmachine.HALT),
+	})
+	if g.A != 5 {
+		t.Errorf("want A == 5, got %d", g.A)
+	}
+	if g.P != 3 {
+		t.Errorf("want P == 3, got %d", g.P)
+	}
+}
+
+func TestSub3(t *testing.T) {
+	t.Parallel()
+	tcs := []struct {
+		input, want uint64
+	}{
+		{input: 3, want: 1},
+		{input: 100, want: 98},
+		{input: 5, want: 3},
+	}
+	for _, tc := range tcs {
+		g := gmachine.New()
+		g.RunProgram([]uint64{
+			uint64(gmachine.SETA),
+			tc.input,
+			uint64(gmachine.DECA),
+			uint64(gmachine.DECA),
+			uint64(gmachine.HALT),
+		})
+		if g.A != tc.want {
+			t.Errorf("want A == %d, got %d", tc.want, g.A)
+		}
+	}
+}

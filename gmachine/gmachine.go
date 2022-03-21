@@ -11,6 +11,9 @@ type Opcode uint64
 const (
 	HALT Opcode = iota
 	NOOP
+	INCA
+	DECA
+	SETA
 )
 
 type Gmachine struct {
@@ -38,6 +41,18 @@ func (gm *Gmachine) Run() {
 		case uint64(HALT):
 			return
 		case uint64(NOOP):
+		case uint64(INCA):
+			gm.A += 1
+		case uint64(DECA):
+			gm.A -= 1
+		case uint64(SETA):
+			gm.A = gm.Memory[gm.P]
+			gm.P++
 		}
 	}
+}
+
+func (g *Gmachine) RunProgram(program []uint64) {
+	copy(g.Memory, program)
+	g.Run()
 }
